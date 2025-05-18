@@ -1,0 +1,32 @@
+[
+    {
+        "nome": "Ana Silva",
+        "telefone": "11999990001",
+        "email": "ana.silva@email.com",
+        "favorito": false
+    },
+    {
+        "nome": "Bruno Lima",
+        "telefone": "21988887777",
+        "email": "bruno.lima@email.com",
+        "favorito": true
+    },
+    {
+        "nome": "Carlos Souza",
+        "telefone": "31977776666",
+        "email": "carlos.souza@email.com",
+        "favorito": false
+    },
+    {
+        "nome": "Débora Mendes",
+        "telefone": "41966665555",
+        "email": "debora.mendes@email.com",
+        "favorito": false
+    },
+    {
+        "nome": "Eduardo Rocha",
+        "telefone": "51955554444",
+        "email": "eduardo.rocha@email.com",
+        "favorito": false
+    }
+]
