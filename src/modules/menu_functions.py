@@ -1,4 +1,5 @@
 import json
+
 from modules.menu_enum import MenuOpcao
 
 

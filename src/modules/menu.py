@@ -1,6 +1,8 @@
-from modules.menu_functions import MenuFunctions, mensagem_valor_invalido
-from modules.menu_enum import MenuOpcao
 from pathlib import Path
+
+from modules.menu_enum import MenuOpcao
+from modules.menu_functions import MenuFunctions, mensagem_valor_invalido
+
 
 class Menu:
     BASE_DIR = Path.cwd()
@@ -8,7 +10,6 @@ class Menu:
     MSG_DESPEDIDA = "\nEncerrando aplicação. Até a próxima!"
     MSG_CONTINUAR = "\nDeseja continuar? (S/N): "
     MSG_OPCAO_INVALIDA = "\nOpção inválida!"
-
 
     def __init__(
         self,

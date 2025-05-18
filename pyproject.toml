@@ -1,0 +1,47 @@
+[project]
+name = "rocketseat"
+version = "1.0.0"
+description = ""
+authors = [
+    {name = "Pedro Dias"}
+]
+readme = "README.md"
+requires-python = ">= 3.13"
+dependencies = [
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.poetry]
+package-mode = false
+
+
+[tool.poetry.group.dev.dependencies]
+bandit = "^1.8.3"
+black = "^25.1.0"
+flake8 = "^7.2.0"
+flake8-pyproject = "^1.2.3"
+isort = "^6.0.1"
+pre-commit = "^4.2.0"
+
+
+[tool.black]
+line-length = 88
+
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+include_trailing_comma = 'True'
+force_grid_wrap = 0
+use_parentheses = 'True'
+ensure_newline_before_comments = 'True'
+line_length = 88
+
+
+[tool.flake8]
+max-line-length = 88
