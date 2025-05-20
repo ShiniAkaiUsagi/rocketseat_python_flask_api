@@ -21,7 +21,7 @@ O [Desafio proposto](Desafio01.txt) foi criar uma agenda de contatos com algumas
 git clone https://github.com/seu-usuario/nome-do-projeto.git
 
 # 2. Acesse a pasta do projeto
-cd nome-do-projeto
+cd rocketseat_python_challenge01
 
 # 3. Execute o script de build para preparar as ferramentas e ambiente
 sh scripts/build.sh
