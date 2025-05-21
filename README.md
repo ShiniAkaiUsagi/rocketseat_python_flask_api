@@ -32,6 +32,10 @@ sh scripts/build.sh
 
 ## Executando a aplicação
 ```bash
-# Para executar o código da Agenda, basta utilizar o comando abaixo:
-poetry run python src/desafio_agenda.py
+# Para executar os testes unitários da API, já configurado no pyproject.toml:
+poetry run pytest
+
+# Para 'ligar' o API Server e poder enviar requisições na máquina:
+poetry run python sample/src/app.py
+
 ```

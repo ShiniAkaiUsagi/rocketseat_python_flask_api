@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
-from models.task import Task
+
+from src.models.tasks import Task
 
 app = Flask(__name__)
 
@@ -18,8 +19,9 @@ def create_task():
     )
     task_id_control += 1
     tasks.append(new_task)
-    print(data)
-    return jsonify({"message": "Tarefa criada com sucesso!", "data": data})
+    return jsonify(
+        {"message": "Tarefa criada com sucesso!", "data": new_task.to_dict()}
+    )
 
 
 @app.route("/tasks", methods=["GET"])
@@ -34,7 +36,8 @@ def get_tasks():
     return output
 
 
-# Sobre o uso do <int:id> https://flask.palletsprojects.com/en/stable/quickstart/#variable-rules
+# Sobre o uso do <int:id>
+#    https://flask.palletsprojects.com/en/stable/quickstart/#variable-rules
 @app.route("/tasks/<int:id>", methods=["GET"])
 def get_task(id):
     task = None
@@ -55,11 +58,9 @@ def update_task(id):
             task = t
             break
 
-    if task == None:
+    if task is None:
         return (
-            jsonify(
-                {"message": f"Não foi possível encontrar a atividade com o id {id}"}
-            ),
+            jsonify({"message": f"Não foi possível encontrar a tarefa com id {id}"}),
             404,
         )
 
@@ -68,7 +69,9 @@ def update_task(id):
     task.description = data["description"]
     task.completed = data["completed"]
 
-    return jsonify({"message": "Tarefa atualizada com sucesso!", "data": data})
+    return jsonify(
+        {"message": "Tarefa atualizada com sucesso!", "data": task.to_dict()}
+    )
     # recomendado não indicar o status 200, pois já é o padrão
 
 
@@ -82,9 +85,7 @@ def delete_task(id):
 
     if not task:
         return (
-            jsonify(
-                {"message": f"Não foi possível encontrar a atividade com o id {id}"}
-            ),
+            jsonify({"message": f"Não foi possível encontrar a tarefa com id {id}"}),
             404,
         )
 
@@ -92,5 +93,9 @@ def delete_task(id):
     return jsonify({"message": "Tarefa deletada com sucesso!", "task": {"id": id}})
 
 
+def run_app(debug: bool = False):
+    app.run(debug=debug)
+
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    run_app()
