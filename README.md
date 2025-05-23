@@ -35,7 +35,25 @@ sh scripts/build.sh
 # Para executar os testes unitários da API, já configurado no pyproject.toml:
 poetry run pytest
 
-# Para 'ligar' o API Server e poder enviar requisições na máquina:
-poetry run python sample/src/app.py
+# Para 'ligar' o API Server e poder enviar requisições da máquina:
+# para a api crud tarefas
+PYTHONPATH=. poetry run python sample/crud_tarefas/src/app.py
+# ou para api em conjunto com a sql_alchemy
+PYTHONPATH=. poetry run python sample/sql_alchemy/src/app.py
 
+# Para o sample do SQL Alchemy
+# Para acessar o flask shell:
+FLASK_APP=sample.sql_alchemy.src.app flask shell
+
+db.session  # exibir a sessão
+db.create_all()  # criar as tabelas utilizadas em código
+
+#Para criar um usuario no database criado:
+user = User(username="admin", cpf="00000000001", email="admin@admin.com", password="123")
+user    # verifica se o objeto foi criado
+user.username # loga o valor da chave username
+
+db.session.add(user)    # adiciona o user no banco, nessa sessão
+db.session.commit()  # Salva as alterações na sessão:
+exit()
 ```
