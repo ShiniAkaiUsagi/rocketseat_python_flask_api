@@ -1,7 +1,7 @@
 import pytest
 
-from sample.src.app import app, tasks
-from sample.src.models.task import Task
+from sample.crud_tarefas.src.app import app, tasks
+from sample.crud_tarefas.src.models.task import Task
 
 
 # CRUD
@@ -33,9 +33,8 @@ def setup_task():
 
 
 # pytest -m "api" para executar somente os testes marcados como api
-@pytest.mark.api
-
 # @pytest.mark.usefixtures("setup_task") - já setado como autouse para todos os testes
+@pytest.mark.api
 class TestCrudTarefas:
 
     def test_create_task(self, client):

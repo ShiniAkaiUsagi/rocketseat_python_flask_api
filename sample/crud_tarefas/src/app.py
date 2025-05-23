@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 
-from src.models.tasks import Task
+from sample.crud_tarefas.src.models.task import Task
 
 app = Flask(__name__)
 
@@ -98,4 +98,4 @@ def run_app(debug: bool = False):
 
 
 if __name__ == "__main__":
-    run_app()
+    run_app(True)

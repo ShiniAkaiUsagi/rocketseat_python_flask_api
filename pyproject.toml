@@ -11,7 +11,12 @@ dependencies = [
     # "flask-cors (>=6.0.0,<7.0.0)",
     "werkzeug (>=3.1.3,<4.0.0)",
     "requests (>=2.32.3,<3.0.0)",
+    "flask-sqlalchemy (>=3.1.1,<4.0.0)",
+    "flask-login (>=0.6.3,<0.7.0)",
 ]
+
+# VSCode Extensions recomendadas:
+# - SQLite Viewer
 
 
 [build-system]
@@ -98,7 +103,8 @@ addopts = """
 
 testpaths = [
     "tests",
-    "sample/tests",
+    "sample/crud_tarefas/tests",
+    "sample/sql_alchemy/tests",
 ]
 python_files = "test_*.py"
 python_classes = "Test*"
