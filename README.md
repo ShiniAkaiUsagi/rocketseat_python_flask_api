@@ -43,7 +43,7 @@ sh scripts/build.sh
 
 ### Para executar os testes unitários de todos os projetos:
 ```bash
-poetry run pytest
+PYTHONPATH=. poetry run pytest
 ```
 
 ### Passos iniciais para o SubProjeto task-manager

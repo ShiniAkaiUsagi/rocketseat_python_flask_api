@@ -15,6 +15,8 @@ dependencies = [
     "pymysql (>=1.1.1,<2.0.0)",
     "cryptography (>=45.0.2,<46.0.0)",
     "bcrypt (>=4.3.0,<5.0.0)",
+    "faker[providers] (>=37.3.0,<38.0.0)",
+    "docker (>=7.1.0,<8.0.0)",
 ]
 
 
@@ -76,6 +78,7 @@ skips = ["B101", "B601"]
 [tool.pytest.ini_options]
 pythonpath = ["."]
 minversion = "8.0"
+asyncio_mode = "auto"
 addopts = """
     -ra
     -q 
@@ -83,7 +86,9 @@ addopts = """
     --html=report.html
     --self-contained-html
     --junitxml=report.xml
-    --cov='sample/src'
+    --cov=src
+    --cov=sample/crud_tarefas/src
+    --cov=sample/sql_alchemy/src
     --cov-report=html 
     --cov-report=xml 
     --disable-warnings
@@ -102,7 +107,7 @@ addopts = """
 
 testpaths = [
     "tests",
-    "sample/crud_tarefas/tests",
+    "sample./crud_tarefas/tests",
     "sample/sql_alchemy/tests",
 ]
 python_files = "test_*.py"
@@ -112,10 +117,17 @@ python_functions = "test_*"
 
 [tool.coverage.run]
 branch = true
-source = ["sample", "src"]
+source = [
+    "src",
+    "sample/crud_tarefas/src",
+    "sample/sql_alchemy/src",
+    ]
 
 
 [tool.coverage.report]
+show_missing = true
+fail_under = 0
+skip_covered = false
 exclude_lines = [
     "if __name__ == .__main__.:"
 ]
