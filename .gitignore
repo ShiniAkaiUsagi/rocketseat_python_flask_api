@@ -5,3 +5,4 @@ htmlcov/
 coverage.xml
 report.html
 report.xml
+.coverage
