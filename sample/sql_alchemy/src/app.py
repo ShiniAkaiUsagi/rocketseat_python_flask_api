@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import bcrypt
 from flask import Flask, current_app, jsonify, request
 from flask_login import (
     LoginManager,
@@ -11,34 +12,23 @@ from flask_login import (
 from sqlalchemy import inspect, or_
 
 from sample.sql_alchemy.src.database import db
-from sample.sql_alchemy.src.models.user import User
+from sample.sql_alchemy.src.models.user import User, UserRoles
 from sample.sql_alchemy.src.modules.user_data_validator import (
     is_valid_cpf,
     is_valid_email,
 )
 
-# from sample.sql_alchemy.src.models.user import User
-# Hints: Organizar / ordenar os componentes do código pela taxa de atualização!
-
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "secret_key"
 db_path = Path.cwd() / "sample" / "sql_alchemy" / "src" / "databases"
-app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}/database.db"
-
-# Doc Flask-Login
-# https://flask-login.readthedocs.io/en/latest/
+app.config["SQLALCHEMY_DATABASE_URI"] = (
+    "mysql+pymysql://root:admin123@127.0.0.1:3306/flask-alchemy"
+)
 
 login_manager = LoginManager()
-
-db.init_app(app)  # Session <- Conexão ativa
-
+db.init_app(app)
 login_manager.init_app(app)
-
 login_manager.login_view = "login"
-
-
-# sql_alchemy record_queries
-# https://flask-sqlalchemy.readthedocs.io/en/stable/api/#module-flask_sqlalchemy.record_queries
 
 
 @login_manager.user_loader
@@ -48,23 +38,28 @@ def load_user(user_id):
 
 @app.route("/login", methods=["POST"])
 def login():
-    data = request.json
-    email = data.get("email")
-    password = data.get("password")
+    try:
+        data = request.json
+        email = data.get("email")
+        password = data.get("password")
 
-    if not email or not password:
+        if not email or not password:
+            return (
+                jsonify({"message": "Campos 'email' e 'password' são obrigatórios!"}),
+                401,
+            )
+
+        user = User.query.filter_by(email=email).first()
+        if user and bcrypt.checkpw(str.encode(password), user.password.encode()):
+            login_user(user)
+            return jsonify({"message": "Autenticação realizada com sucesso!"})
         return (
-            jsonify({"message": "Campos 'email' e 'password' são obrigatórios.!"}),
+            jsonify({"message": "Usuário não encontrado ou credenciais inválidas!"}),
             401,
         )
-
-    user = User.query.filter_by(email=email).first()
-    if user and user.password == password:
-        login_user(user)
-        print(f"Usuário autenticado: {current_user.is_authenticated}")
-        return jsonify({"message": "Autenticação realizada com sucesso!"})
-
-    return jsonify({"message": "Usuário não encontrado ou credenciais inválidas!"}), 401
+    except Exception as e:
+        current_app.logger.info(e)
+        return jsonify({"message": "Erro interno no servidor."}), 500
 
 
 @app.route("/logout", methods=["GET"])
@@ -80,15 +75,18 @@ def create_user():
     try:
         data = request.json
         required_fields = get_user_non_pk_columns(User)
-
         missing_fields = [field for field in required_fields if not data.get(field)]
+
+        if current_user.role != UserRoles.ADMIN.value:
+            return jsonify({"message": "Operação não permitida!"}), 403
+
         if missing_fields:
             return (
                 jsonify(
                     {
                         "message": (
                             "Campos obrigatórios ausentes: "
-                            + f"{', '.join(missing_fields)})"
+                            + f"{', '.join(missing_fields)}"
                         )
                     }
                 ),
@@ -98,20 +96,18 @@ def create_user():
         if not is_valid_email(data["email"]):
             return (
                 jsonify(
-                    {
-                        "message": "E-mail inválido!",
-                        "data": {"email": f"{data["email"]}"},
-                    }
-                )
-            ), 400
+                    {"message": "E-mail inválido!", "data": {"email": data["email"]}}
+                ),
+                400,
+            )
 
         if not is_valid_cpf(data["cpf"]):
             return (
-                jsonify({"message": "CPF inválido!", "data": {"cpf": f"{data["cpf"]}"}})
-            ), 400
+                jsonify({"message": "CPF inválido!", "data": {"cpf": data["cpf"]}}),
+                400,
+            )
 
         unique_fields = get_user_unique_non_pk_columns(User)
-
         filters = [getattr(User, field) == data[field] for field in unique_fields]
         existing_user = User.query.filter(or_(*filters)).first()
 
@@ -121,6 +117,11 @@ def create_user():
                 for key, value in data.items()
                 if key in User.__table__.columns.keys()
             }
+            hashed_password = bcrypt.hashpw(
+                str.encode(data["password"]), bcrypt.gensalt()
+            )
+            user_data["password"] = hashed_password
+            user_data["role"] = UserRoles.USER.value
 
             db.session.add(User(**user_data))
             db.session.commit()
@@ -134,7 +135,7 @@ def create_user():
         )
 
     except Exception as e:
-        current_app.logger.exception(f"Erro ao criar usuário: {e}!")
+        current_app.logger.exception(f"Erro ao criar usuário: {e}")
         return jsonify({"message": "Erro interno no servidor."}), 500
 
 
@@ -152,6 +153,10 @@ def read_user(user_id):
 def update_user(user_id):
     try:
         user = User.query.get(user_id)
+
+        if user_id != current_user.id or current_user.role != UserRoles.ADMIN.value:
+            return jsonify({"message": "Operação não permitida!"}), 403
+
         if not user:
             return (
                 jsonify({"message": f"Usuário com id {user_id} não encontrado!"}),
@@ -160,15 +165,15 @@ def update_user(user_id):
 
         data = request.json
         required_fields = get_user_non_pk_columns(User)
-
         missing_fields = [field for field in required_fields if not data.get(field)]
+
         if missing_fields:
             return (
                 jsonify(
                     {
                         "message": (
                             "Campos obrigatórios ausentes: "
-                            + f"{', '.join(missing_fields)})"
+                            + f"{', '.join(missing_fields)}"
                         )
                     }
                 ),
@@ -178,65 +183,75 @@ def update_user(user_id):
         if not is_valid_email(data["email"]):
             return (
                 jsonify(
-                    {
-                        "message": "E-mail inválido!",
-                        "data": {"email": f"{data["email"]}"},
-                    }
-                )
-            ), 400
+                    {"message": "E-mail inválido!", "data": {"email": data["email"]}}
+                ),
+                400,
+            )
 
         if not is_valid_cpf(data["cpf"]):
             return (
-                jsonify({"message": "CPF inválido!", "data": {"cpf": f"{data["cpf"]}"}})
-            ), 400
+                jsonify({"message": "CPF inválido!", "data": {"cpf": data["cpf"]}}),
+                400,
+            )
 
         unique_fields = get_user_unique_non_pk_columns(User)
-
         filters = [getattr(User, field) == data[field] for field in unique_fields]
         existing_data = User.query.filter(or_(*filters)).first()
 
-        if not existing_data:
-            user_data = {
-                key: value
-                for key, value in data.items()
-                if key in User.__table__.columns.keys()
-            }
+        if existing_data and existing_data.id != user.id:
+            return jsonify({"message": "Esses dados já estão sendo utilizados!"}), 400
 
-            db.session.add(User(**user_data))
-            db.session.commit()
-            return jsonify({"message": "Usuário atualizado com sucesso!"}), 201
+        hashed_password = bcrypt.hashpw(str.encode(data["password"]), bcrypt.gensalt())
+        data["password"] = hashed_password
+        for key, value in data.items():
+            if key in User.__table__.columns.keys():
+                setattr(user, key, value)
 
-        return (
-            jsonify({"message": "Esses dados não podem ser cadastrados!"}),
-            400,
-        )
+        db.session.commit()
+        return jsonify({"message": "Usuário atualizado com sucesso!"})
 
     except Exception as e:
-        current_app.logger.exception(f"Erro ao atualizar usuário: {e}!")
+        current_app.logger.exception(f"Erro ao atualizar usuário: {e}")
         return jsonify({"message": "Erro interno no servidor."}), 500
 
 
 @app.route("/user/<int:user_id>", methods=["DELETE"])
 @login_required
 def delete_user(user_id):
-    user = User.query.get(user_id)
-    if user:
-        if user_id == current_user.id:
-            return jsonify({"mensagem": "Deleção não permitida!"}), 403
+    try:
+        user = User.query.get(user_id)
 
-        db.session.delete(user)
-        db.session.commit()
-        return jsonify({"mensagem": f"Usuário com id {user.id} deletado com sucesso!"})
-    return jsonify({"message": "Usuário não encontrado!"}), 404
+        if current_user.role != UserRoles.ADMIN.value:
+            return jsonify({"message": "Operação não permitida!"}), 403
+
+        if user_id == current_user.id:
+            return jsonify({"message": "Deleção não permitida!"}), 403
+
+        if user:
+            db.session.delete(user)
+            db.session.commit()
+            return jsonify(
+                {"mensagem": f"Usuário com id {user.id} deletado com sucesso!"}
+            )
+        return jsonify({"message": "Usuário não encontrado!"}), 404
+    except Exception as e:
+        current_app.logger.exception(f"Erro ao deletar usuário {user}: {e}")
+        return jsonify({"message": "Erro interno no servidor."}), 500
 
 
 def get_user_non_pk_columns(model):
-    return [col.key for col in inspect(model).columns if not col.primary_key]
+    return [
+        col.key
+        for col in inspect(model).columns
+        if not col.primary_key and col.key != "role"
+    ]
 
 
 def get_user_unique_non_pk_columns(model):
     return [
-        col.key for col in inspect(model).columns if col.unique and not col.primary_key
+        col.key
+        for col in inspect(model).columns
+        if col.unique and not col.primary_key and col.key != "role"
     ]
 
 

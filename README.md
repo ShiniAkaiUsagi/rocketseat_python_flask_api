@@ -10,6 +10,11 @@ O [Desafio proposto](Desafio02.txt) ...
 
 - [Python 3.13](https://www.python.org/downloads/)
 - [Git](https://git-scm.com/downloads)
+- [Docker Desktop](https://docs.docker.com/desktop/)
+
+#### VSCode Extensions recomendadas:
+- SQLite Viewer
+- MySQL (database-client.com)
 
 ## Instalação
 
@@ -26,34 +31,55 @@ sh scripts/build.sh
 # O script executa:
 # python.exe -m pip install --upgrade pip
 # pip install -U poetry
-# poetry install
+# poetry self add poetry-plugin-export
+# poetry self update
+# poetry update
 # poetry run pre-commit run
+# # E para instalar as dependências na máquina local, além do ambiente virtual:
+# poetry export --without-hashes --format=requirements.txt -o requirements.txt
+# pip install -U -r requirements.txt
+
 ```
 
-## Executando a aplicação
+### Para executar os testes unitários de todos os projetos:
 ```bash
-# Para executar os testes unitários da API, já configurado no pyproject.toml:
 poetry run pytest
+```
+
+### Passos iniciais para o SubProjeto task-manager
+```bash
 
 # Para 'ligar' o API Server e poder enviar requisições da máquina:
-# para a api crud tarefas
 PYTHONPATH=. poetry run python sample/crud_tarefas/src/app.py
-# ou para api em conjunto com a sql_alchemy
+```
+`
+
+
+### Passos iniciais para o SubProjeto sql_alchemy
+```bash
+# Terminal 1: Inicie a aplicação
 PYTHONPATH=. poetry run python sample/sql_alchemy/src/app.py
+# Terminal 2: Conecte o docker para nos conectarmos ao banco de dados
+docker-compose up
+# Terminal 3: Crie o database e crie os 2 usuários iniciais como teste
+db.drop_all()
+db.create_all()
 
-# Para o sample do SQL Alchemy
-# Para acessar o flask shell:
-FLASK_APP=sample.sql_alchemy.src.app flask shell
+user = User(username="admin", cpf="00000000001", email="admin@admin.com", password="12345", role="admin")
+db.session.add(user)
 
-db.session  # exibir a sessão
-db.create_all()  # criar as tabelas utilizadas em código
+user = User(username="notadmin", cpf="00000000002", email="admin2@admin.com", password="12345", role="user")
+db.session.add(user)
 
-#Para criar um usuario no database criado:
-user = User(username="admin", cpf="00000000001", email="admin@admin.com", password="123")
-user    # verifica se o objeto foi criado
-user.username # loga o valor da chave username
-
-db.session.add(user)    # adiciona o user no banco, nessa sessão
-db.session.commit()  # Salva as alterações na sessão:
+db.session.commit()
 exit()
+```
+
+##### Alternando bancos de dados (MySQL vs SQLite)
+No arquivo da aplicação (app.py), basta escolher uma das conexões abaixo.
+Para isso, 'comente' ou exclua no arquivo app.py a linha que não irá utilizar:
+
+```python
+app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}/database.db"
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql:///root:admin123@127.0.0.1:3306/flask-crud'
 ```
