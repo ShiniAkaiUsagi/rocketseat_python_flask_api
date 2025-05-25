@@ -41,7 +41,7 @@ sh scripts/build.sh
 
 ```
 
-### Para executar os testes unitários de todos os projetos:
+### Para executar os testes unitários de todos os projetos (aulas e desafio):
 ```bash
 PYTHONPATH=. poetry run pytest
 ```
