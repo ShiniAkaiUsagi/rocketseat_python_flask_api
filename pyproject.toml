@@ -15,6 +15,8 @@ dependencies = [
     "pymysql (>=1.1.1,<2.0.0)",
     "cryptography (>=45.0.2,<46.0.0)",
     "bcrypt (>=4.3.0,<5.0.0)",
+    "faker[providers] (>=37.3.0,<38.0.0)",
+    "docker (>=7.1.0,<8.0.0)",
 ]
 
 
@@ -32,19 +34,21 @@ isort = "^6.0.1"
 pre-commit = "^4.2.0"
 pytest = "^8.3.5"
 pytest-cov = "^6.1.1"
-pytest-asyncio = "^0.26.0"
 pytest-xdist = "^3.6.1"
 pytest-mock = "^3.14.0"
+pytest-flask = "^1.3.0"
+pytest-html = "^4.1.1"
+
+
 
 ### Plugins PyTest
 # pytest-cov	    Medição de cobertura com --cov, --cov-report=html/xml, etc.
 # pytest-asyncio	Suporte a testes async def e await com asyncio.
+#################   Flask/SQLAlchemy são síncronos, então não funciona aqui :')
 # pytest-xdist	    Paralelização com -n auto, ótimo para acelerar os testes locais.
 # pytest-mock	    Facilita o uso do unittest.mock com fixtures.
 # pytest-django	    Para projetos Django, com setup de DB automático para testes.
 # pytest-httpx	    Simula chamadas HTTP em testes com a lib httpx.
-pytest-flask = "^1.3.0"
-pytest-html = "^4.1.1"
 
 
 [tool.black]
@@ -83,7 +87,9 @@ addopts = """
     --html=report.html
     --self-contained-html
     --junitxml=report.xml
-    --cov='sample/src'
+    --cov=src
+    --cov=sample/crud_tarefas/src
+    --cov=sample/sql_alchemy/src
     --cov-report=html 
     --cov-report=xml 
     --disable-warnings
@@ -93,11 +99,7 @@ addopts = """
 # --maxfail=1 parar no primeiro erro
 # -ra para relatório
 # -q para menos verbosidade
-# -n auto para utilizar mais núcleos - auto é tudo disponível, mas podemos limitar tb.
-
 # para ver o html de coverage: start htmlcov\index.html
-
-
 # no sonar.properties: sonar.python.coverage.reportPaths=coverage.xml
 
 testpaths = [
@@ -112,10 +114,17 @@ python_functions = "test_*"
 
 [tool.coverage.run]
 branch = true
-source = ["sample", "src"]
+source = [
+    "src",
+    "sample/crud_tarefas/src",
+    "sample/sql_alchemy/src",
+    ]
 
 
 [tool.coverage.report]
+show_missing = true
+fail_under = 0
+skip_covered = false
 exclude_lines = [
     "if __name__ == .__main__.:"
 ]

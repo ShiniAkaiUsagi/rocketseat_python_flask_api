@@ -34,7 +34,6 @@ def setup_task():
 
 # pytest -m "api" para executar somente os testes marcados como api
 # @pytest.mark.usefixtures("setup_task") - já setado como autouse para todos os testes
-@pytest.mark.api
 class TestCrudTarefas:
 
     def test_create_task(self, client):

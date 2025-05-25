@@ -1,3 +1,9 @@
+poetry run python -B -m pytest --cache-clear
+find . -name "__pycache__" -exec rm -rf {} +
+find . -name "*.pyc" -delete
+find . -name "*.xml" -delete
+find . -name "*.html" -delete
+
 poetry update
 poetry run isort .
 poetry run black .
