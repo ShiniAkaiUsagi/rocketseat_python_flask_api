@@ -1,34 +1,27 @@
 from enum import Enum
-from src.database import db
+
 from marshmallow import Schema, fields, validate
-from pydantic import BaseModel
-from sqlalchemy import Enum as SqlEnum, Boolean
+from sqlalchemy import Boolean
+from sqlalchemy import Enum as SqlEnum
+
+from src.database import db
 
 
 class MealTypes(str, Enum):
     BREAKFAST = "Café da manhã"
-    BRUNCH = "Lanche da manhã"
     LUNCH = "Almoço"
+    SNACK = "Lanche"
     DINNER = "Janta"
     SUPPER = "Ceia"
-    SNACK = "Lanche"
 
 
 class MealSchema(Schema):
     type = fields.String(
-        required=True,
-        validate=validate.OneOf([meal.value for meal in MealTypes])
+        required=True, validate=validate.OneOf([m.value for m in MealTypes])
     )
     description = fields.String(required=True, validate=validate.Length(max=200))
     timestamp = fields.String(required=True)
     is_diet_related = fields.Boolean(required=True)
-
-
-class MealCreate(BaseModel):
-    type: MealTypes
-    description: str
-    timestamp: str
-    is_diet_related: bool
 
 
 class Meal(db.Model):
@@ -39,3 +32,12 @@ class Meal(db.Model):
     description = db.Column(db.String(200), nullable=False)
     timestamp = db.Column(db.String(120), nullable=False)
     is_diet_related = db.Column(Boolean, nullable=False)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "type": self.type.value,
+            "description": self.description,
+            "timestamp": self.timestamp,
+            "is_diet_related": self.is_diet_related,
+        }
