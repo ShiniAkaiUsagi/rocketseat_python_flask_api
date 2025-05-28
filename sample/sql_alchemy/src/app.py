@@ -24,7 +24,7 @@ def create_app(config=None):
 
     app.config["SECRET_KEY"] = "admin123"
     app.config["SQLALCHEMY_DATABASE_URI"] = (
-        "mysql+pymysql:///root:admin123@127.0.0.1:3306/flask-crud"
+        "mysql+pymysql:///root:admin123@127.0.0.1:3306/flask-sqlalchemy"
     )
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 

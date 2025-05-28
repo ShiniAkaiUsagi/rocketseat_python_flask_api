@@ -63,15 +63,7 @@ def client(app):
     return app.test_client()
 
 
-@pytest.fixture
-def raise_exception():
-    raise Exception("Erro simulado")
-
-
 class DummyQuery:
-    def filter_by(self, *args, **kwargs):
-        return self
-
     def first(self):
         raise RuntimeError("boom")
 

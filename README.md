@@ -41,28 +41,30 @@ sh scripts/build.sh
 
 ```
 
-### Para executar os testes unitários de todos os projetos:
+### Para executar os testes unitários de todos os projetos (aulas e desafio):
 ```bash
 PYTHONPATH=. poetry run pytest
 ```
 Observação: Os testes unitários dos projetos sql_alchemy_api e do desafio02
     estão utilizando um banco de dados na memória, não impactando a aplicação.
 
-### Passos iniciais para o SubProjeto task-manager
+### Passos iniciais para os projetos de Sample:
+
 ```bash
 
+# CRUD tarefas
 # Para 'ligar' o API Server e poder enviar requisições da máquina:
 PYTHONPATH=. poetry run python sample/crud_tarefas/src/app.py
-```
 
-
-### Passos iniciais para o SubProjeto sql_alchemy
-```bash
-# Terminal 1: Inicie a aplicação
+# sql_alchemy
+# Terminal 1: Para 'ligar' o API Server e poder enviar requisições da máquina:
 PYTHONPATH=. poetry run python sample/sql_alchemy/src/app.py
+
 # Terminal 2: Conecte o docker para nos conectarmos ao banco de dados
 docker-compose up
-# Terminal 3: Crie o database e crie os 2 usuários iniciais como teste
+
+# Terminal 3: Crie os usuários de teste no banco de dados:
+PYTHONPATH=. FLASK_APP=sample.sql_alchemy.src.app poetry run flask shell
 db.drop_all()
 db.create_all()
 
@@ -72,6 +74,25 @@ db.session.add(user)
 user = User(username="notadmin", cpf="00000000002", email="admin2@admin.com", password="12345", role="user")
 db.session.add(user)
 
+db.session.commit()
+exit()
+```
+
+
+## Executando o projeto do desafio:
+
+```bash
+# Terminal 1: Inicie a aplicação
+PYTHONPATH=. poetry run python src/app.py
+
+# Terminal 2: Conecte o docker para nos conectarmos ao banco de dados
+docker-compose up
+
+# Terminal 3: Crie o database
+# Para acessar o flask shell:
+PYTHONPATH=. FLASK_APP=src.app poetry run flask shell
+db.drop_all()
+db.create_all()
 db.session.commit()
 exit()
 ```
