@@ -1,7 +1,7 @@
 # RocketSeat
 
 Projeto criado como forma de fixar e avaliar os conhecimentos obtidos no módulo: "Desenvolvimento de APIs com Flask".
-[Desafio proposto](Desafio.txt)
+[Desafio](Desafio.txt)
 
 ### Funcionalidades
 
