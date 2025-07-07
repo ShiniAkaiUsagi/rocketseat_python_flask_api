@@ -13,7 +13,7 @@ dependencies = [
     "requests (>=2.32.3,<3.0.0)",
     "flask-sqlalchemy (>=3.1.1,<4.0.0)",
     "flask-login (>=0.6.3,<0.7.0)",
-]
+    ]
 
 # VSCode Extensions recomendadas:
 # - SQLite Viewer
@@ -79,7 +79,8 @@ pythonpath = ["."]
 minversion = "8.0"
 addopts = """
     -ra
-    -q 
+    -q
+    --dist=loadfile
     -n 4
     --html=report.html
     --self-contained-html
@@ -88,7 +89,7 @@ addopts = """
     --cov-report=html 
     --cov-report=xml 
     --disable-warnings
-"""
+    """
 
 # --junitxml=report.xml  para report CI/CD
 # --maxfail=1 parar no primeiro erro
@@ -105,7 +106,7 @@ testpaths = [
     "tests",
     "sample/crud_tarefas/tests",
     "sample/sql_alchemy/tests",
-]
+    ]
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
@@ -119,4 +120,4 @@ source = ["sample", "src"]
 [tool.coverage.report]
 exclude_lines = [
     "if __name__ == .__main__.:"
-]
+    ]
