@@ -1,7 +1,7 @@
-# RocketSeat - Desafio 01 - Agenda
+# RocketSeat
 
-Projeto criado como forma de fixar e avaliar os conhecimentos obtidos no módulo 2: "Desenvolvimento de APIs com Flask".
-O [Desafio proposto](Desafio02.txt) ...
+Projeto criado como forma de fixar e avaliar os conhecimentos obtidos no módulo: "Desenvolvimento de APIs com Flask".
+[Desafio proposto](Desafio.txt)
 
 ### Funcionalidades
 

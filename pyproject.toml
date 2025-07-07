@@ -94,7 +94,8 @@ pythonpath = ["."]
 minversion = "8.0"
 addopts = """
     -ra
-    -q 
+    -q
+    --dist=loadfile
     -n 4
     --html=report.html
     --self-contained-html
