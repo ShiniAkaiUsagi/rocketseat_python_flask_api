@@ -1,7 +1,9 @@
-.vscode
+.vscode/
 __pycache__
 .pytest_cache
 htmlcov/
 coverage.xml
 report.html
 report.xml
+.coverage
+.poetry

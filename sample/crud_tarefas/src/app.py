@@ -4,8 +4,6 @@ from sample.crud_tarefas.src.models.task import Task
 
 app = Flask(__name__)
 
-# CRUD
-
 tasks = []
 task_id_control = 1
 

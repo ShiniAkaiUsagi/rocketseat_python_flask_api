@@ -10,6 +10,11 @@ Projeto criado como forma de fixar e avaliar os conhecimentos obtidos no módulo
 
 - [Python 3.13](https://www.python.org/downloads/)
 - [Git](https://git-scm.com/downloads)
+- [Docker Desktop](https://docs.docker.com/desktop/)
+
+#### VSCode Extensions recomendadas:
+- SQLite Viewer
+- MySQL (database-client.com)
 
 ## Instalação
 
@@ -26,34 +31,82 @@ sh scripts/build.sh
 # O script executa:
 # python.exe -m pip install --upgrade pip
 # pip install -U poetry
-# poetry install
+# poetry self add poetry-plugin-export
+# poetry self update
+# poetry update
 # poetry run pre-commit run
+# # E para instalar as dependências na máquina local, além do ambiente virtual:
+# poetry export --without-hashes --format=requirements.txt -o requirements.txt
+# pip install -U -r requirements.txt
+
 ```
 
-## Executando a aplicação
+### Para executar os testes unitários de todos os projetos (aulas e desafio):
 ```bash
-# Para executar os testes unitários da API, já configurado no pyproject.toml:
-poetry run pytest
+PYTHONPATH=. poetry run pytest
+```
+Observação: Os testes unitários dos projetos sql_alchemy_api e do desafio02
+    estão utilizando um banco de dados na memória, não impactando a aplicação.
 
+### Passos iniciais para os projetos de Sample:
+
+```bash
+
+# CRUD tarefas
 # Para 'ligar' o API Server e poder enviar requisições da máquina:
-# para a api crud tarefas
 PYTHONPATH=. poetry run python sample/crud_tarefas/src/app.py
-# ou para api em conjunto com a sql_alchemy
+
+# sql_alchemy
+# Terminal 1: Para 'ligar' o API Server e poder enviar requisições da máquina:
 PYTHONPATH=. poetry run python sample/sql_alchemy/src/app.py
 
-# Para o sample do SQL Alchemy
-# Para acessar o flask shell:
-FLASK_APP=sample.sql_alchemy.src.app flask shell
+# Terminal 2: Conecte o docker para nos conectarmos ao banco de dados
+docker-compose up
 
-db.session  # exibir a sessão
-db.create_all()  # criar as tabelas utilizadas em código
+# Terminal 3: Crie os usuários de teste no banco de dados:
+PYTHONPATH=. FLASK_APP=sample.sql_alchemy.src.app poetry run flask shell
+db.drop_all()
+db.create_all()
 
-#Para criar um usuario no database criado:
-user = User(username="admin", cpf="00000000001", email="admin@admin.com", password="123")
-user    # verifica se o objeto foi criado
-user.username # loga o valor da chave username
+user = User(username="admin", cpf="00000000001", email="admin@admin.com", password="12345", role="admin")
+db.session.add(user)
 
-db.session.add(user)    # adiciona o user no banco, nessa sessão
-db.session.commit()  # Salva as alterações na sessão:
+user = User(username="notadmin", cpf="00000000002", email="admin2@admin.com", password="12345", role="user")
+db.session.add(user)
+
+db.session.commit()
 exit()
+```
+
+
+## Executando o projeto do desafio:
+
+```bash
+# Terminal 1: Inicie a aplicação
+PYTHONPATH=. poetry run python src/app.py
+
+# Terminal 2: Conecte o docker para nos conectarmos ao banco de dados
+docker-compose up
+
+# Terminal 3: Crie o database
+# Para acessar o flask shell:
+PYTHONPATH=. FLASK_APP=src.app poetry run flask shell
+db.drop_all()
+db.create_all()
+db.session.commit()
+exit()
+```
+
+### Alternando bancos de dados (MySQL/docker vs SQLite)
+Caso prefira não usar o MySQL com Docker
+
+troque a linha do app.config:
+```python
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql:///root:admin123@127.0.0.1:3306/flask-crud'
+```
+por:
+```python
+from pathlib import Path
+db_path = Path.cwd() / "sample" / "sql_alchemy" / "src" / "databases"
+app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}/database.db"
 ```
